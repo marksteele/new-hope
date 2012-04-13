@@ -8,16 +8,15 @@ module Hope
     
     attr_reader :received
     
-    def initialize name, pub, opts={}
+    def initialize name, opts={}
       @name = name
       @received = { :success => 0, :errors => 0, :latest_error => "" }
-      @pub = pub
     end
     
     def update(newEvents, oldEvents)
       events = { :new_events => pack_events(newEvents), :old_events => pack_events(oldEvents), :name => @name }
       puts "Publishing new_events: #{events.inspect}"
-      @pub.send_msg '', events.to_json
+      Hope.exchangeout.publish(events.to_json)
     end
     
     def pack_events events

@@ -38,6 +38,7 @@ module Hope
       @uri = uri || "default"
       Hope.register_engine(self)
       @configuration = Configuration.new
+
       if config_file
         if File.exists?(config_file)
           @configuration.configure(config_file)
@@ -47,24 +48,20 @@ module Hope
       end
       
       provider
-      
-      #@rpc = Hope.ctx.connect ZMQ::REP, "ipc://hope-rpc", self
-      @sub = Hope.ctx.connect ZMQ::SUB, "ipc://hope-in", self
-      @sub.subscribe ""
+            
+      Hope.ctx.queue("", :exclusive => true, :auto_delete => true).bind(Hope.exchangein).subscribe(&self.method(:handle_message))
 
-      @pub = Hope.ctx.connect ZMQ::PUB, "ipc://hope-out"
       @deployments = {}
       @received = 0
     end
     
-    def on_readable(socket, messages)
+    def handle_message(metadata, payload)
       @received += 1
-      msg = messages.first.copy_out_string
-      event = JSON.parse(msg)
+      event = JSON.parse(payload)
       puts "[##{@received}]: #{event.inspect}"
       self.sendEvent(event, event['type'])
-    end    
-    
+    end # handle_message(metadata, payload)
+
     # Deployment API
     
     def epl_stream epl_file
@@ -86,7 +83,7 @@ module Hope
         puts "DeploymentResult: #{res.toString}"
         if res
           res.getStatements.each do |s|
-            s.addListener Hope::Pub.new(s.getName, @pub)
+            s.addListener Hope::Pub.new(s.getName)
           end
         end
         @deployments[module_uri] = res

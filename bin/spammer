@@ -2,18 +2,35 @@
 $LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
 require 'rubygems'
 require 'bundler'
+require 'amqp'
 
 Bundler.setup
 
-require 'em-zeromq'
 require 'json'
 
 class Handler
   
   def self.ctx
-    @ctx ||= EM::ZeroMQ::Context.new(1)
+    conf = {
+      :host => "127.0.0.1",
+      :user => "guest",
+      :password => "guest",
+      :vhost => "/",
+      :logging => false,
+      :port => 5672
+    }
+    connection = AMQP.connect(conf)
+    @ctx ||= AMQP::Channel.new(connection)
   end
   
+  def self.exchangeout
+    @exchangeout ||= ctx.topic('esper-out')
+  end
+
+  def self.exchangein
+    @exchangein ||= ctx.topic('esper-in')
+  end
+
   def initialize
     @received = 0
   end
@@ -28,16 +45,20 @@ class Handler
 end
 
 
-EM.run {
-  @sub = Handler.ctx.bind ZMQ::SUB, "ipc://hope-out", Handler.new
-  @sub.subscribe ''
+    def handle_message(metadata, payload)
+      event = JSON.parse(payload)
+      puts "[##{@received}]: #{event.inspect}"
+    end # handle_message(metadata, payload)
 
-  @pub = Handler.ctx.bind ZMQ::PUB, "ipc://hope-in"
+
+EM.run {
+
+  Handler.ctx.queue("", :exclusive => true, :auto_delete => true).bind(Handler.exchangeout).subscribe(&self.method(:handle_message))
   
   EventMachine::add_periodic_timer( 1 ) do 
     msg = { :message => "Salut, il est #{Time.now}", :code => rand(20), :type => "TestEvent", :user => { :firstName => "Bob", :lastName => "Bobby" } }.to_json
     puts "Sending: #{msg}"
-    @pub.send_msg(msg)
+    Handler.exchangein.publish(msg)
   end
   
 }
