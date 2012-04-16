@@ -1,11 +1,2 @@
-@Name('all')
-SELECT user, message FROM TestEvent;
-
-
-@Name('users')
-INSERT INTO Users
-  SELECT distinct user FROM TestEvent;
-
-
-@Name('Bobs')
-SELECT * FROM Users WHERE firstName = 'Bob'
+@Name('countevents')
+select count(*) from metric.win:time(5 second) output snapshot every 2 seconds;
