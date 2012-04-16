@@ -46,7 +46,12 @@ group by
   host;
 
 /*
-   Next, calculate the average value in the delta stream over time.
+   Next, calculate the average value in the delta stream over time. Keep in mind that you'll need to factor in the interval to calculate the value.
+   As an example, if we want to alert when the value is less than 100 Mbps and the metric value is in octets...
+   100 Mbps ~ 12.5 MBps
+   If the sampling interval is 10 seconds, we'd expect the delta to be 10 * 12.5 MB or 125000000 octets every 10 seconds
+
+   There's probably a more clever way to do this with EPL...
 */
 @Name('02_treshold-interface-eth1.if_octets.rx-min')
 select 
