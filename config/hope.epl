@@ -71,3 +71,18 @@ having
   average < 125000000
 output first every 90 seconds;
 
+/* 
+  Metric absence detection
+*/
+@Name('01_metric_absence_detection')
+select 
+  'critical' as event_severity, 
+  'Metric interface-eth1.if_octets.rx missing' as description,
+  '172_16_5_66' as host,
+  'lax' as datacenter,
+  current_timestamp()/1000 as time
+from 
+  pattern 
+    [
+      every (timer:interval(30 sec) and not metric(metric='interface-eth1.if_octets.rx',host='172_16_50_66'))
+    ];

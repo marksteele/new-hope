@@ -17,3 +17,12 @@ This is part of a larger effort to build a truly scalable monitoring infrastruct
 source components.
 
 See http://www.github.com/marksteele for other things I've been working on, or my blog: http://www.control-alt-del.org/code
+
+
+Known bugs:
+
+Probably lots. I am a complete ruby/java novice.
+
+I'm probably using ruby/eventmachine/amqp/something wrong as for some reason if nothing is publishing to amqp to the input
+queue, messages aren't sent out on the output exchange. If there's a steady stream of input to the queue, things are published
+in a timely manner.

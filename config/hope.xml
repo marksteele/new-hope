@@ -9,6 +9,7 @@
   			<map-property name="metric" class="string"/>
   			<map-property name="host" class="string"/>
   			<map-property name="value" class="double"/>
+  			<map-property name="time" class="double"/>
   		</java-util-map>
   	</event-type>
  
