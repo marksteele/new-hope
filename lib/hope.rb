@@ -17,20 +17,24 @@ require "hope/config"
 module Hope
   include Java
   
-  def self.ctx
-    @amqp_config = Hope::Config.new("config/amqp.cfg")
-    connection = AMQP.connect(@amqp_config.amqp)
-    @ctx ||= AMQP::Channel.new(connection)
+  def self.amqp_config
+    @amqp_config ||= Hope::Config.new("config/amqp.cfg")
+  end
+
+  def self.amqp_connection
+    @amqp_connection ||= AMQP.connect(amqp_config.amqp)
+  end
+
+  def self.amqp_channel
+    @amqp_channel ||= AMQP::Channel.new(amqp_connection)
   end
 
   def self.exchangeout
-    @amqp_config = Hope::Config.new("config/amqp.cfg")
-    @exchangeout ||= ctx.topic(@amqp_config.amqp[:exchange_output], :durable => true, :auto_delete => false)
+    @exchangeout ||= amqp_channel.topic(amqp_config.amqp[:exchange_output], :durable => true, :auto_delete => false)
   end
 
-  def self.exchangein
-    @amqp_config = Hope::Config.new("config/amqp.cfg")
-    @exchangein ||= ctx.topic(@amqp_config.amqp[:exchange_input])
+  def self.queue
+    @queue ||= amqp_channel.queue("", :exclusive => true, :auto_delete => true).bind(amqp_config.amqp[:exchange_input])
   end
 
 end

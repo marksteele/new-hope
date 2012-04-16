@@ -49,7 +49,7 @@ module Hope
       
       provider
             
-      Hope.ctx.queue("", :exclusive => true, :auto_delete => true).bind('esper-in').subscribe(&self.method(:handle_message))
+      Hope.queue.subscribe(&self.method(:handle_message))
 
       @deployments = {}
       @received = 0
