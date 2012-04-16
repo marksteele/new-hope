@@ -78,11 +78,11 @@ output first every 90 seconds;
 select 
   'critical' as event_severity, 
   'Metric interface-eth1.if_octets.rx missing' as description,
-  '172_16_5_66' as host,
-  'lax' as datacenter,
+  '1.2.3.4' as host,
+  'nyc' as datacenter,
   current_timestamp()/1000 as time
 from 
   pattern 
     [
-      every (timer:interval(30 sec) and not metric(metric='interface-eth1.if_octets.rx',host='172_16_50_66'))
+      every (timer:interval(30 sec) and not metric(metric='interface-eth1.if_octets.rx',host='1.2.3.4'))
     ];
