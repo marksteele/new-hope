@@ -25,7 +25,7 @@ module Hope
 
   def self.exchangeout
     @amqp_config = Hope::Config.new("config/amqp.cfg")
-    @exchangeout ||= ctx.topic(@amqp_config.amqp[:exchange_output])
+    @exchangeout ||= ctx.topic(@amqp_config.amqp[:exchange_output], :durable => true, :auto_delete => false)
   end
 
   def self.exchangein

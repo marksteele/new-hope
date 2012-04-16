@@ -49,17 +49,19 @@ module Hope
       
       provider
             
-      Hope.ctx.queue("", :exclusive => true, :auto_delete => true).bind(Hope.exchangein).subscribe(&self.method(:handle_message))
+      Hope.ctx.queue("", :exclusive => true, :auto_delete => true).bind('esper-in').subscribe(&self.method(:handle_message))
 
       @deployments = {}
       @received = 0
     end
     
-    def handle_message(metadata, payload)
-      @received += 1
-      event = JSON.parse(payload)
-      puts "[##{@received}]: #{event.inspect}"
-      self.sendEvent(event, event['type'])
+    def handle_message(metadata, payload) 
+      payload.split("\n").each do |line|      
+        @received += 1
+        event = JSON.parse(line)
+        puts "[##{@received}]: #{event.inspect}"
+        self.sendEvent(event, event['type'])
+      end
     end # handle_message(metadata, payload)
 
     # Deployment API
