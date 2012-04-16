@@ -83,9 +83,11 @@ module Hope
         undeploy_module(module_uri)
         res = admin.getDeploymentAdmin.readDeploy(stream, module_uri, nil, nil)
         puts "DeploymentResult: #{res.toString}"
+       
         if res
           res.getStatements.each do |s|
-            s.addListener Hope::Pub.new(s.getName)
+            puts "Adding listener to statement #{s.getName}" unless /-silent$/.match(s.getName)
+            s.addListener Hope::Pub.new(s.getName) unless /-silent$/.match(s.getName)
           end
         end
         @deployments[module_uri] = res

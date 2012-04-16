@@ -1,2 +1,68 @@
-@Name('countevents')
-select count(*) from metric.win:time(5 second) output snapshot every 2 seconds;
+/*
+  To avoid unecessary listeners, add -silent to the name of a query so that it won't emit. A bit of a hack, but it works...
+*/
+
+/*
+  Example of a straight threshold check against a gauge value over a 5 minute interval
+*/
+@Name('hiphop_drop')
+select 
+  'critical' as event_severity,
+  'Hiphop throughput averaging less than 5000 requests per second over past 5 minute interval' as event_description,
+  average as value, 
+  datacenter, 
+  host 
+from 
+  metric(metric='hiphop.gauge-hiphop.value').std:groupwin(metric, datacenter, host).win:time(5 min).stat:uni(value, metric, datacenter, host) 
+group by 
+  metric, 
+  datacenter, 
+  host 
+having 
+  average < 5000
+output 
+  first every 90 seconds;
+
+/*
+  Example of querying against counters. 
+*/
+
+/*
+  First create a stream of the values over time. This query stored the difference between the current lastest value and the previous value. We won't have any listeners on this stream
+*/
+@Name('01_metric_delta_stream-interface-eth1.if_octets.rx-min-silent')
+insert into 
+  metric_delta_stream 
+select 
+  (value - prev(value)) as value,
+  metric,
+  host,
+  datacenter
+from 
+  metric(metric='interface-eth1.if_octets.rx').std:groupwin(metric, datacenter, host).win:length(2)
+group by
+  metric,
+  datacenter,
+  host;
+
+/*
+   Next, calculate the average value in the delta stream over time.
+*/
+@Name('02_treshold-interface-eth1.if_octets.rx-min')
+select 
+  'critical' as event_severity,
+  'Interface throughput for eth1 averaging less than 100Mbps for the last 5 minutes' as event_description,
+  average as value, 
+  datacenter, 
+  host,
+  metric 
+from 
+  metric_delta_stream(metric='interface-eth1.if_octets.rx').std:groupwin(metric, datacenter, host).win:time(5 min).stat:uni(value, metric, datacenter, host)
+group by 
+  metric, 
+  datacenter, 
+  host 
+having 
+  average < 125000000
+output first every 90 seconds;
+
