@@ -55,11 +55,15 @@ module Hope
       @received = 0
     end
     
-    def handle_message(metadata, payload) 
-      payload.split("\n").each do |line|      
+    def handle_message(metadata, payload)
+      if Hope.compress
+        payload = Snappy.inflate(payload)
+      end
+      payload.split("\n").each do |line|
         @received += 1
         event = JSON.parse(line)
-        puts "[##{@received}]: #{event.inspect}"
+        event['value'] = event['value'].to_f
+        #puts "[##{@received}]: #{event.inspect}"
         self.sendEvent(event, event['type'])
       end
     end # handle_message(metadata, payload)
