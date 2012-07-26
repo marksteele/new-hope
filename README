@@ -2,20 +2,21 @@ Fork of new-hope
 
 This software is a simple AMQP to Esper gateway (and back).
 
-The software expects an AMQP exchange to which data is published and binds a queue to it.
+The software expects an AMQP exchange to which data is published and binds a 
+queue to it.
 
 When messages are received, they are parsed and sent into Esper for processing.
 
-When Esper has an output (based on configured queries), it will emit a message to an AMQP 
-exchange.
+When Esper has an output (based on configured queries), it will emit a message 
+to an AMQP exchange.
 
 Changes from original:
  - Uses AMQP instead of ZeroMQ
  - Handles multiple inputs per AMQP message
 
 
-This is part of a larger effort to build a truly scalable monitoring infrastructure that 
-has best of breed open source components.
+This is part of a larger effort to build a truly scalable monitoring infrastructure 
+that has best of breed open source components.
 
 See http://www.github.com/marksteele for other things I've been working on, or my 
 blog: http://www.control-alt-del.org/code
@@ -25,6 +26,7 @@ Known bugs:
 
 Probably lots. I am a complete ruby/java novice.
 
-I'm probably using ruby/eventmachine/amqp/something wrong as for some reason if nothing 
-is publishing to amqp to the input queue, messages aren't sent out on the output exchange. 
-If there's a steady stream of input to the queue, things are published in a timely manner.
+I'm probably using ruby/eventmachine/amqp/something wrong as for some reason if 
+nothing is publishing to amqp to the input queue, messages aren't sent out on 
+the output exchange. If there's a steady stream of input to the queue, things 
+are published in a timely manner.
