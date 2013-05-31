@@ -56,9 +56,6 @@ module Hope
     end
     
     def handle_message(metadata, payload)
-      if Hope.compress
-        payload = Snappy.inflate(payload)
-      end
       payload.split("\n").each do |line|
         @received += 1
         event = JSON.parse(line)
