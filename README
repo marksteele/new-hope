@@ -30,3 +30,5 @@ I'm probably using ruby/eventmachine/amqp/something wrong as for some reason if
 nothing is publishing to amqp to the input queue, messages aren't sent out on 
 the output exchange. If there's a steady stream of input to the queue, things 
 are published in a timely manner.
+
+Sample: http://www.control-alt-del.org/2013/06/10/complex-event-processing-for-fun-and-profit/
