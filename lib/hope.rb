@@ -1,6 +1,6 @@
 require "rubygems"
 require 'amqp'
-require 'hope/jars/esper-4.5.0.jar'
+require 'hope/jars/esper-4.9.0.jar'
 require 'hope/jars/commons-logging-1.1.1.jar'
 require 'hope/jars/antlr-runtime-3.2.jar'
 require 'hope/jars/cglib-nodep-2.2.jar'
